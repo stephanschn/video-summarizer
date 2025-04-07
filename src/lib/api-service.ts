@@ -1,5 +1,6 @@
+
 import { toast } from "sonner";
-import { ApiKeyConfig, SummaryResult, MindMapData, MindMapNode, MindMapEdge } from "./types";
+import { ApiKeyConfig, SummaryResult, MindMapData, MindMapNode, MindMapEdge, Topic } from "./types";
 
 // Store API keys in localStorage
 export const saveApiKey = (config: ApiKeyConfig): void => {
@@ -37,25 +38,15 @@ export const testApiConnection = async (config: ApiKeyConfig): Promise<boolean> 
     }
     
     if (config.provider === 'gemini') {
+      // The Gemini API URL structure has changed, using the correct endpoint
       const apiKey = config.apiKey;
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`;
       
       const response = await fetch(url, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: "Hello, this is a test message to verify API connectivity.",
-                },
-              ],
-            },
-          ],
-        }),
       });
 
       const data = await response.json();
@@ -89,11 +80,11 @@ export const fetchVideoDetails = async (videoId: string) => {
     // For now, we'll return placeholder data for demonstration
     return {
       id: videoId,
-      title: `Video ${videoId}`,
-      channelTitle: "Channel Name",
+      title: `YouTube Video ${videoId}`,
+      channelTitle: "Creator Academy",
       publishedAt: new Date().toISOString(),
       thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-      description: "Video description would appear here."
+      description: "This video covers important topics that have been summarized for you."
     };
   } catch (error) {
     console.error('Error fetching video details:', error);
@@ -115,106 +106,90 @@ export const generateSummary = async (videoId: string, apiConfig: ApiKeyConfig):
     // Simulating API call delay
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    if (apiConfig.provider === 'openai') {
-      // OpenAI implementation would go here in a real app
-      // This is a mock response
-      return mockSummaryResult();
-    }
-    
-    if (apiConfig.provider === 'gemini') {
-      // Gemini implementation would go here in a real app
-      // This is a mock response
-      return mockSummaryResult();
-    }
-    
-    throw new Error('Unsupported API provider');
+    // Return the mock summary - in a real app, this would be generated from the video content
+    return {
+      tldr: "This video provides a comprehensive overview of machine learning concepts, explaining different types of ML algorithms, their applications, and future trends in the field.",
+      topics: [
+        {
+          title: "Introduction to Machine Learning",
+          keyPoints: [
+            "Machine learning is a subset of AI that enables systems to learn from data without explicit programming",
+            "It's revolutionizing industries from healthcare to finance to transportation",
+            "The field has grown exponentially due to increased data availability and computing power"
+          ],
+          subtopics: [
+            {
+              title: "Types of Machine Learning",
+              keyPoints: [
+                "Supervised learning: training on labeled data to make predictions",
+                "Unsupervised learning: finding patterns in unlabeled data",
+                "Reinforcement learning: learning optimal actions through trial and error feedback"
+              ]
+            }
+          ]
+        },
+        {
+          title: "Common Machine Learning Algorithms",
+          keyPoints: [
+            "Regression algorithms predict continuous values like house prices or temperature",
+            "Classification algorithms categorize data into predefined classes",
+            "Clustering algorithms group similar data points without prior labels",
+            "Decision trees make decisions by following a tree-like model of decisions"
+          ]
+        },
+        {
+          title: "Practical Applications",
+          keyPoints: [
+            "Computer vision for image recognition and processing",
+            "Natural language processing for text analysis and generation",
+            "Recommendation systems for personalized content and product suggestions",
+            "Autonomous vehicles for self-driving capabilities",
+            "Fraud detection in financial transactions"
+          ]
+        },
+        {
+          title: "Data Preparation and Feature Engineering",
+          keyPoints: [
+            "Data cleaning removes inconsistencies and handles missing values",
+            "Feature selection identifies the most relevant variables",
+            "Feature engineering creates new variables to improve model performance",
+            "Data normalization scales features to comparable ranges"
+          ]
+        },
+        {
+          title: "Model Evaluation and Validation",
+          keyPoints: [
+            "Training, validation, and test splits ensure reliable performance assessment",
+            "Cross-validation provides robust evaluation on different data subsets",
+            "Metrics like accuracy, precision, recall, and F1-score measure performance",
+            "Confusion matrices visualize classification results"
+          ]
+        },
+        {
+          title: "Challenges and Ethical Considerations",
+          keyPoints: [
+            "Bias and fairness issues can perpetuate or amplify social inequalities",
+            "Model interpretability is crucial for understanding decision-making processes",
+            "Privacy concerns arise when models train on personal data",
+            "Accountability frameworks are needed for responsible AI deployment"
+          ]
+        },
+        {
+          title: "Future Trends in Machine Learning",
+          keyPoints: [
+            "AutoML is democratizing access by automating model selection and tuning",
+            "Edge ML enables on-device processing for privacy and latency benefits",
+            "Federated learning allows model training across devices without sharing raw data",
+            "Neural architecture search automates the design of optimal neural networks",
+            "Multi-modal learning combines different data types for richer understanding"
+          ]
+        }
+      ]
+    };
   } catch (error) {
     console.error('Error generating summary:', error);
     throw error;
   }
-};
-
-// Mock summary result - in a real app, this would be generated from the video content
-const mockSummaryResult = (): SummaryResult => {
-  return {
-    tldr: "This video provides a comprehensive overview of machine learning concepts, explaining different types of ML algorithms, their applications, and future trends in the field.",
-    topics: [
-      {
-        title: "Introduction to Machine Learning",
-        keyPoints: [
-          "Machine learning is a subset of AI that enables systems to learn from data without explicit programming",
-          "It's revolutionizing industries from healthcare to finance to transportation",
-          "The field has grown exponentially due to increased data availability and computing power"
-        ],
-        subtopics: [
-          {
-            title: "Types of Machine Learning",
-            keyPoints: [
-              "Supervised learning: training on labeled data to make predictions",
-              "Unsupervised learning: finding patterns in unlabeled data",
-              "Reinforcement learning: learning optimal actions through trial and error feedback"
-            ]
-          }
-        ]
-      },
-      {
-        title: "Common Machine Learning Algorithms",
-        keyPoints: [
-          "Regression algorithms predict continuous values like house prices or temperature",
-          "Classification algorithms categorize data into predefined classes",
-          "Clustering algorithms group similar data points without prior labels",
-          "Decision trees make decisions by following a tree-like model of decisions"
-        ]
-      },
-      {
-        title: "Practical Applications",
-        keyPoints: [
-          "Computer vision for image recognition and processing",
-          "Natural language processing for text analysis and generation",
-          "Recommendation systems for personalized content and product suggestions",
-          "Autonomous vehicles for self-driving capabilities",
-          "Fraud detection in financial transactions"
-        ]
-      },
-      {
-        title: "Data Preparation and Feature Engineering",
-        keyPoints: [
-          "Data cleaning removes inconsistencies and handles missing values",
-          "Feature selection identifies the most relevant variables",
-          "Feature engineering creates new variables to improve model performance",
-          "Data normalization scales features to comparable ranges"
-        ]
-      },
-      {
-        title: "Model Evaluation and Validation",
-        keyPoints: [
-          "Training, validation, and test splits ensure reliable performance assessment",
-          "Cross-validation provides robust evaluation on different data subsets",
-          "Metrics like accuracy, precision, recall, and F1-score measure performance",
-          "Confusion matrices visualize classification results"
-        ]
-      },
-      {
-        title: "Challenges and Ethical Considerations",
-        keyPoints: [
-          "Bias and fairness issues can perpetuate or amplify social inequalities",
-          "Model interpretability is crucial for understanding decision-making processes",
-          "Privacy concerns arise when models train on personal data",
-          "Accountability frameworks are needed for responsible AI deployment"
-        ]
-      },
-      {
-        title: "Future Trends in Machine Learning",
-        keyPoints: [
-          "AutoML is democratizing access by automating model selection and tuning",
-          "Edge ML enables on-device processing for privacy and latency benefits",
-          "Federated learning allows model training across devices without sharing raw data",
-          "Neural architecture search automates the design of optimal neural networks",
-          "Multi-modal learning combines different data types for richer understanding"
-        ]
-      }
-    ]
-  };
 };
 
 // Generate mind map data from summary
