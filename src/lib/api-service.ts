@@ -1,6 +1,5 @@
-
 import { toast } from "sonner";
-import { ApiKeyConfig, SummaryResult, MindMapData } from "./types";
+import { ApiKeyConfig, SummaryResult, MindMapData, MindMapNode, MindMapEdge } from "./types";
 
 // Store API keys in localStorage
 export const saveApiKey = (config: ApiKeyConfig): void => {
