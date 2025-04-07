@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
@@ -20,6 +20,12 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [videoInfo, setVideoInfo] = useState<YouTubeVideoInfo | null>(null);
   const [summary, setSummary] = useState<SummaryResult | null>(null);
+  
+  useEffect(() => {
+    // Check if there's an existing API key on component mount
+    const apiConfig = getApiKey();
+    setHasValidConfig(!!apiConfig);
+  }, []);
 
   const handleVideoSubmit = async (videoId: string) => {
     const apiConfig = getApiKey();
