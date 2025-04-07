@@ -1,9 +1,9 @@
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MindMapData, SummaryResult } from '@/lib/types';
+import { SummaryResult } from '@/lib/types';
 import { generateMindMapData } from '@/lib/api-service';
-import { ReactFlow, Background, Controls, MiniMap, NodeTypes, EdgeTypes } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MiniMap, NodeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 interface MindMapProps {
@@ -18,7 +18,7 @@ const nodeTypes: NodeTypes = {
 
 function TopicNode({ data }: { data: { label: string } }) {
   return (
-    <div className="px-4 py-2 font-medium">
+    <div className="px-4 py-2 shadow-md bg-blue-50 border-blue-200 text-blue-800 font-medium rounded-md min-w-[120px] max-w-[200px]">
       {data.label}
     </div>
   );
@@ -26,7 +26,7 @@ function TopicNode({ data }: { data: { label: string } }) {
 
 function SubtopicNode({ data }: { data: { label: string } }) {
   return (
-    <div className="px-4 py-2">
+    <div className="px-4 py-2 shadow-md bg-green-50 border-green-200 text-green-800 font-medium rounded-md min-w-[100px] max-w-[180px]">
       {data.label}
     </div>
   );
@@ -38,23 +38,16 @@ function KeypointNode({ data }: { data: { label: string } }) {
     : data.label;
     
   return (
-    <div className="px-4 py-2 text-sm">
+    <div className="px-3 py-1.5 shadow-md bg-orange-50 border-orange-200 text-orange-800 text-sm rounded-md min-w-[80px] max-w-[160px]">
       {truncatedLabel}
     </div>
   );
 }
 
 const MindMap: React.FC<MindMapProps> = ({ summary }) => {
-  const [mindMapData, setMindMapData] = useState<MindMapData | null>(null);
-
-  useEffect(() => {
-    if (summary) {
-      const data = generateMindMapData(summary);
-      setMindMapData(data);
-    }
-  }, [summary]);
-
-  if (!summary || !mindMapData) return null;
+  if (!summary) return null;
+  
+  const mindMapData = generateMindMapData(summary);
 
   return (
     <Card className="w-full animate-fade-in">
@@ -62,19 +55,34 @@ const MindMap: React.FC<MindMapProps> = ({ summary }) => {
         <CardTitle>Mind Map</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="h-[600px] w-full mindmap-container">
+        <div className="h-[700px] w-full mindmap-container"> {/* Increased height for better visibility */}
           <ReactFlow
             nodes={mindMapData.nodes}
             edges={mindMapData.edges}
             nodeTypes={nodeTypes}
             fitView
-            minZoom={0.2}
+            minZoom={0.1}
             maxZoom={1.5}
-            defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+            defaultViewport={{ x: 0, y: 0, zoom: 0.4 }} // Start more zoomed out
+            fitViewOptions={{ padding: 0.3 }}
+            nodesDraggable={true}
+            elementsSelectable={true}
           >
-            <Background />
+            <Background color="#f0f0f0" gap={16} />
             <Controls />
-            <MiniMap nodeStrokeWidth={3} zoomable pannable />
+            <MiniMap 
+              nodeStrokeWidth={3} 
+              zoomable 
+              pannable 
+              nodeColor={(node) => {
+                switch(node.type) {
+                  case 'topic': return '#dbeafe';  // Light blue
+                  case 'subtopic': return '#dcfce7'; // Light green
+                  case 'keypoint': return '#ffedd5'; // Light orange
+                  default: return '#e5e5e5';
+                }
+              }}
+            />
           </ReactFlow>
         </div>
       </CardContent>
