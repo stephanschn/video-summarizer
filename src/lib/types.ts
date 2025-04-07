@@ -41,6 +41,10 @@ export interface MindMapEdge {
   source: string;
   target: string;
   animated?: boolean;
+  style?: {
+    stroke?: string;
+    strokeWidth?: number;
+  };
 }
 
 export interface MindMapData {
