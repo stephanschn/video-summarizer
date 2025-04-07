@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { ApiKeyConfig, SummaryResult, MindMapData, MindMapNode, MindMapEdge, Topic, YouTubeVideoInfo } from "./types";
 
@@ -157,6 +156,38 @@ export const generateSummary = async (videoId: string, apiConfig: ApiKeyConfig):
   }
 };
 
+// Extract JSON from AI response text that might contain markdown
+const extractJsonFromAIResponse = (content: string): any => {
+  try {
+    // Check if the response is wrapped in markdown code blocks
+    if (content.includes('```json')) {
+      // Extract the JSON part from markdown
+      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        return JSON.parse(jsonMatch[1].trim());
+      }
+    }
+    
+    // If not in markdown format, try to parse directly
+    return JSON.parse(content);
+  } catch (parseError) {
+    console.error('Failed to parse AI response:', parseError);
+    
+    // Last attempt - try to find anything that looks like JSON
+    try {
+      const possibleJson = content.match(/\{[\s\S]*\}/);
+      if (possibleJson) {
+        return JSON.parse(possibleJson[0]);
+      }
+    } catch (e) {
+      // Give up
+      throw new Error('Failed to process the AI response');
+    }
+    
+    throw new Error('Failed to process the AI response');
+  }
+};
+
 // Generate summary using OpenAI
 const generateOpenAISummary = async (transcript: string, apiKey: string): Promise<SummaryResult> => {
   try {
@@ -211,14 +242,8 @@ const generateOpenAISummary = async (transcript: string, apiKey: string): Promis
     const data = await response.json();
     const content = data.choices[0].message.content;
     
-    // Parse the JSON response
-    try {
-      const summaryData = JSON.parse(content);
-      return summaryData;
-    } catch (parseError) {
-      console.error('Failed to parse OpenAI response:', parseError);
-      throw new Error('Failed to process the AI response');
-    }
+    // Parse the JSON response using the helper function
+    return extractJsonFromAIResponse(content);
   } catch (error) {
     console.error('Error with OpenAI summary generation:', error);
     throw error;
@@ -228,7 +253,9 @@ const generateOpenAISummary = async (transcript: string, apiKey: string): Promis
 // Generate summary using Gemini
 const generateGeminiSummary = async (transcript: string, apiKey: string): Promise<SummaryResult> => {
   try {
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key=${apiKey}`;
+    // Use the available models from the Gemini API (from console logs we can see they've changed)
+    // Models like gemini-1.0-pro are no longer available, using gemini-1.5-flash instead
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
       method: 'POST',
@@ -285,19 +312,8 @@ const generateGeminiSummary = async (transcript: string, apiKey: string): Promis
     // Extract the text content from the Gemini response
     const content = data.candidates[0].content.parts[0].text;
     
-    // Parse the JSON in the response
-    try {
-      // Find where the JSON begins in the text (it might have markdown formatting)
-      const jsonStart = content.indexOf('{');
-      const jsonEnd = content.lastIndexOf('}') + 1;
-      const jsonStr = content.substring(jsonStart, jsonEnd);
-      
-      const summaryData = JSON.parse(jsonStr);
-      return summaryData;
-    } catch (parseError) {
-      console.error('Failed to parse Gemini response:', parseError);
-      throw new Error('Failed to process the AI response');
-    }
+    // Parse the JSON in the response using the helper function
+    return extractJsonFromAIResponse(content);
   } catch (error) {
     console.error('Error with Gemini summary generation:', error);
     throw error;
