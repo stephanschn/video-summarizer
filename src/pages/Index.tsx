@@ -75,10 +75,8 @@ const Index = () => {
         <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-start gap-3">
           <ShieldCheck className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
           <div>
-            <h3 className="font-medium text-blue-800">Your API Keys Are Secure</h3>
             <p className="text-blue-700 text-sm">
-              All API keys are stored <strong>only</strong> in your browser's localStorage and never sent to our servers. 
-              Keys are used directly from your browser to communicate with the AI provider you select.
+            API keys are stored <strong>only</strong> in your browser's localStorage only.
             </p>
           </div>
         </div>
