@@ -1,9 +1,15 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SummaryResult } from '@/lib/types';
 import { generateMindMapData } from '@/lib/api-service';
-import { ReactFlow, Background, Controls, MiniMap, NodeTypes } from '@xyflow/react';
+import { 
+  ReactFlow, 
+  Background, 
+  Controls, 
+  MiniMap, 
+  NodeTypes,
+  MarkerType 
+} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 interface MindMapProps {
@@ -64,7 +70,7 @@ const MindMap: React.FC<MindMapProps> = ({ summary }) => {
             minZoom={0.1}
             maxZoom={1.5}
             defaultViewport={{ x: 0, y: 0, zoom: 0.4 }}
-            fitViewOptions={{ padding: 0.6 }} /* Increased padding for better spacing */
+            fitViewOptions={{ padding: 0.6 }}
             nodesDraggable={true}
             elementsSelectable={true}
             connectionLineStyle={{ stroke: '#333', strokeWidth: 1.5 }}
@@ -72,7 +78,7 @@ const MindMap: React.FC<MindMapProps> = ({ summary }) => {
               style: { strokeWidth: 2 }, 
               animated: false,
               markerEnd: {
-                type: 'arrow',
+                type: MarkerType.Arrow,
                 color: '#333',
                 width: 20,
                 height: 20
@@ -87,9 +93,9 @@ const MindMap: React.FC<MindMapProps> = ({ summary }) => {
               pannable 
               nodeColor={(node) => {
                 switch(node.type) {
-                  case 'topic': return '#dbeafe';  // Light blue
-                  case 'subtopic': return '#dcfce7'; // Light green
-                  case 'keypoint': return '#ffedd5'; // Light orange
+                  case 'topic': return '#dbeafe';
+                  case 'subtopic': return '#dcfce7';
+                  case 'keypoint': return '#ffedd5';
                   default: return '#e5e5e5';
                 }
               }}
