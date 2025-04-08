@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { ApiKeyConfig, SummaryResult, MindMapData, MindMapNode, MindMapEdge, Topic, YouTubeVideoInfo } from "./types";
+import { YoutubeTranscript } from 'youtube-transcript';
 
 // Store API keys in localStorage
 export const saveApiKey = (config: ApiKeyConfig): void => {
@@ -110,29 +111,22 @@ export const fetchVideoDetails = async (videoId: string) => {
 // Fetch video transcript from a YouTube video
 const fetchVideoTranscript = async (videoId: string): Promise<string> => {
   try {
-    // Note: In a real app, you would use a backend service or YouTube API
-    // This is a simplified mock function for demonstration
-    // YouTube requires authentication for transcript API
+    // Fetch the actual transcript from YouTube using the youtube-transcript package
+    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
     
-    // For demo purposes, we're simulating this with a delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Combine all transcript parts into a single string
+    const transcript = transcriptItems
+      .map(item => item.text)
+      .join(' ');
     
-    // Return a dummy transcript - in a real app, you'd fetch this from YouTube
-    return `This video provides a comprehensive overview of machine learning concepts. 
-    Machine learning is a subset of artificial intelligence that enables systems to learn from data without explicit programming.
-    The field has grown exponentially due to increased data availability and computing power.
-    There are three main types of machine learning: supervised learning, unsupervised learning, and reinforcement learning.
-    Supervised learning trains on labeled data to make predictions, while unsupervised learning finds patterns in unlabeled data.
-    Reinforcement learning involves learning optimal actions through trial and error feedback.
-    Common algorithms include regression, classification, clustering, and decision trees.
-    These technologies have applications in computer vision, natural language processing, recommendation systems, and autonomous vehicles.
-    Data preparation is crucial and involves cleaning, feature selection, engineering, and normalization.
-    Models need proper evaluation using training/validation/test splits and metrics like accuracy and precision.
-    Ethical considerations include addressing bias, ensuring interpretability, and protecting privacy.
-    Future trends in the field include AutoML, edge computing, federated learning, and multi-modal approaches.`;
+    if (!transcript || transcript.trim() === '') {
+      throw new Error('No transcript available for this video');
+    }
+    
+    return transcript;
   } catch (error) {
     console.error('Error fetching transcript:', error);
-    throw new Error('Failed to fetch video transcript');
+    throw new Error('Failed to fetch video transcript. This video may not have captions available.');
   }
 };
 
