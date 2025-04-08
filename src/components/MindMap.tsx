@@ -18,7 +18,7 @@ const nodeTypes: NodeTypes = {
 
 function TopicNode({ data }: { data: { label: string } }) {
   return (
-    <div className="px-4 py-2 shadow-md bg-blue-50 border-blue-200 text-blue-800 font-medium rounded-md min-w-[120px] max-w-[200px]">
+    <div className="px-4 py-2 shadow-md bg-blue-50 border-2 border-blue-200 text-blue-800 font-medium rounded-md min-w-[120px] max-w-[200px]">
       {data.label}
     </div>
   );
@@ -26,7 +26,7 @@ function TopicNode({ data }: { data: { label: string } }) {
 
 function SubtopicNode({ data }: { data: { label: string } }) {
   return (
-    <div className="px-4 py-2 shadow-md bg-green-50 border-green-200 text-green-800 font-medium rounded-md min-w-[100px] max-w-[180px]">
+    <div className="px-4 py-2 shadow-md bg-green-50 border-2 border-green-200 text-green-800 font-medium rounded-md min-w-[100px] max-w-[180px]">
       {data.label}
     </div>
   );
@@ -38,7 +38,7 @@ function KeypointNode({ data }: { data: { label: string } }) {
     : data.label;
     
   return (
-    <div className="px-3 py-1.5 shadow-md bg-orange-50 border-orange-200 text-orange-800 text-sm rounded-md min-w-[80px] max-w-[160px]">
+    <div className="px-3 py-1.5 shadow-md bg-orange-50 border-2 border-orange-200 text-orange-800 text-sm rounded-md min-w-[80px] max-w-[160px]">
       {truncatedLabel}
     </div>
   );
@@ -64,9 +64,11 @@ const MindMap: React.FC<MindMapProps> = ({ summary }) => {
             minZoom={0.1}
             maxZoom={1.5}
             defaultViewport={{ x: 0, y: 0, zoom: 0.4 }} // Start more zoomed out
-            fitViewOptions={{ padding: 0.3 }}
+            fitViewOptions={{ padding: 0.4 }}
             nodesDraggable={true}
             elementsSelectable={true}
+            connectionLineStyle={{ stroke: '#333', strokeWidth: 1.5 }}
+            defaultEdgeOptions={{ style: { strokeWidth: 2 }, animated: false }}
           >
             <Background color="#f0f0f0" gap={16} />
             <Controls />

@@ -342,11 +342,12 @@ export const generateMindMapData = (summary: SummaryResult): MindMapData => {
     position: { x: 0, y: 0 }
   });
 
-  // Improved layout algorithm to spread nodes more evenly
+  // Improved layout algorithm with better spacing
   const topicSpacing = 2 * Math.PI / summary.topics.length;
-  const topicRadius = 300; // Increased radius for more spacing
-  const keyPointRadius = 200; // Distance from topic to key points
-  const keyPointArc = 0.8; // Controls how wide the key points spread
+  const topicRadius = 400; // Increased radius for more spacing
+  const keyPointRadius = 250; // Increased distance from topic to key points
+  const subtopicRadius = 200; // Increased distance for subtopics
+  const keyPointArc = 0.7; // Controls how wide the key points spread (reduced for less overlap)
 
   // Add main topics
   summary.topics.forEach((topic, topicIndex) => {
@@ -372,41 +373,9 @@ export const generateMindMapData = (summary: SummaryResult): MindMapData => {
       style: { stroke: '#2563eb', strokeWidth: 2 }
     });
 
-    // Add key points for each topic with better positioning
-    topic.keyPoints.forEach((keyPoint, keyPointIndex) => {
-      const keyPointId = `keypoint-${topicIndex}-${keyPointIndex}`;
-      const totalKeyPoints = topic.keyPoints.length;
-      const arcStart = angle - (keyPointArc / 2);
-      const arcStep = keyPointArc / Math.max(totalKeyPoints - 1, 1);
-      const keyPointAngle = totalKeyPoints > 1 
-        ? arcStart + keyPointIndex * arcStep 
-        : angle;
-      
-      const offsetX = Math.cos(keyPointAngle) * keyPointRadius;
-      const offsetY = Math.sin(keyPointAngle) * keyPointRadius;
-
-      nodes.push({
-        id: keyPointId,
-        type: 'keypoint',
-        data: { label: keyPoint },
-        position: {
-          x: x + offsetX,
-          y: y + offsetY
-        }
-      });
-
-      edges.push({
-        id: `edge-${topicId}-${keyPointId}`,
-        source: topicId,
-        target: keyPointId,
-        style: { stroke: '#f97316', strokeWidth: 1.5 }
-      });
-    });
-
-    // Add subtopics if any
+    // Add subtopics if any (moved before key points to better position them)
     if (topic.subtopics && topic.subtopics.length > 0) {
       const subtopicArc = keyPointArc * 0.8;
-      const subtopicRadius = 150;
       
       topic.subtopics.forEach((subtopic, subtopicIndex) => {
         const subtopicId = `subtopic-${topicIndex}-${subtopicIndex}`;
@@ -438,7 +407,7 @@ export const generateMindMapData = (summary: SummaryResult): MindMapData => {
           style: { stroke: '#10b981', strokeWidth: 1.5 }
         });
 
-        // Add key points for subtopics with better positioning
+        // Add key points for subtopics with improved positioning
         subtopic.keyPoints.forEach((keyPoint, keyPointIndex) => {
           const subKeyPointId = `keypoint-sub-${topicIndex}-${subtopicIndex}-${keyPointIndex}`;
           const totalSubKeyPoints = subtopic.keyPoints.length;
@@ -449,8 +418,8 @@ export const generateMindMapData = (summary: SummaryResult): MindMapData => {
             ? subKeyArcStart + keyPointIndex * subKeyArcStep 
             : subtopicAngle;
           
-          const keyOffsetX = Math.cos(subKeyPointAngle) * 120;
-          const keyOffsetY = Math.sin(subKeyPointAngle) * 120;
+          const keyOffsetX = Math.cos(subKeyPointAngle) * 150;
+          const keyOffsetY = Math.sin(subKeyPointAngle) * 150;
 
           nodes.push({
             id: subKeyPointId,
@@ -466,12 +435,54 @@ export const generateMindMapData = (summary: SummaryResult): MindMapData => {
             id: `edge-${subtopicId}-${subKeyPointId}`,
             source: subtopicId,
             target: subKeyPointId,
-            style: { stroke: '#f97316', strokeWidth: 1 }
+            style: { stroke: '#f97316', strokeWidth: 1.5 }
           });
         });
       });
     }
+
+    // Add key points for each topic with improved positioning
+    const keyPointOffsets = calculateOptimalPositions(topic.keyPoints.length, keyPointArc);
+    
+    topic.keyPoints.forEach((keyPoint, keyPointIndex) => {
+      const keyPointId = `keypoint-${topicIndex}-${keyPointIndex}`;
+      const keyPointAngle = angle + keyPointOffsets[keyPointIndex];
+      
+      const offsetX = Math.cos(keyPointAngle) * keyPointRadius;
+      const offsetY = Math.sin(keyPointAngle) * keyPointRadius;
+
+      nodes.push({
+        id: keyPointId,
+        type: 'keypoint',
+        data: { label: keyPoint },
+        position: {
+          x: x + offsetX,
+          y: y + offsetY
+        }
+      });
+
+      edges.push({
+        id: `edge-${topicId}-${keyPointId}`,
+        source: topicId,
+        target: keyPointId,
+        style: { stroke: '#f97316', strokeWidth: 1.5 }
+      });
+    });
   });
 
   return { nodes, edges };
 };
+
+// Helper function to calculate optimal position angles for a given number of elements
+function calculateOptimalPositions(count: number, totalArc: number): number[] {
+  if (count <= 1) return [0];
+  
+  const positions: number[] = [];
+  const step = totalArc / (count - 1);
+  
+  for (let i = 0; i < count; i++) {
+    positions.push(-totalArc/2 + i * step);
+  }
+  
+  return positions;
+}
