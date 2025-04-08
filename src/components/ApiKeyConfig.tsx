@@ -89,7 +89,7 @@ const ApiKeyConfiguration: React.FC<ApiKeyConfigProps> = ({ onConfigChange }) =>
       <CardHeader>
         <CardTitle>API Configuration</CardTitle>
         <CardDescription>
-          Configure your AI provider API key for video summarization. API keys are stored only in your browser's localStorage.
+          Configure your AI provider API key for video summarization
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
