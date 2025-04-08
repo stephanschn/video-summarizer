@@ -70,6 +70,16 @@ const Index = () => {
           Get a concise summary, key topics, and visual mind map of any YouTube video
         </p>
       </div>
+      
+      <div className="space-y-8">
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <ShieldCheck className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-blue-700 text-sm">
+            API keys are stored <strong>only</strong> in your browser's localStorage only.
+            </p>
+          </div>
+        </div>
         
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
