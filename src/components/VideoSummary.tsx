@@ -21,6 +21,12 @@ const formatTimestampForLink = (seconds: number): string => {
   }
 };
 
+// Generate keyframe thumbnail URL from video ID and timestamp
+const generateThumbnailUrl = (videoId: string, timestamp: number): string => {
+  // YouTube thumbnail at specific timestamp works by adding &t={seconds}s to the URL
+  return `https://i.ytimg.com/vi_webp/${videoId}/mqdefault.webp?&t=${timestamp}s`;
+};
+
 // Mock timestamps for demonstration
 // In a real app, these would come from the API or transcript analysis
 const generateMockTimestamp = (topicIndex: number, videoLength: number = 600): number => {
@@ -101,6 +107,7 @@ interface TopicSectionProps {
 const TopicSection: React.FC<TopicSectionProps> = ({ topic, index, videoId, timestamp }) => {
   const timestampFormatted = formatTimestampForLink(timestamp);
   const videoUrl = `https://www.youtube.com/watch?v=${videoId}&t=${timestampFormatted}`;
+  const thumbnailUrl = generateThumbnailUrl(videoId, timestamp);
   
   return (
     <div className="border-b pb-4">
@@ -119,52 +126,82 @@ const TopicSection: React.FC<TopicSectionProps> = ({ topic, index, videoId, time
         </a>
       </div>
       
-      <div className="pl-4 space-y-4">
-        <div>
-          <h5 className="font-medium mb-2 text-sm">Key Points</h5>
-          <ul className="list-disc pl-5 space-y-1">
-            {topic.keyPoints.map((point, i) => (
-              <li key={i} className="text-muted-foreground">{point}</li>
-            ))}
-          </ul>
-        </div>
-        
-        {topic.subtopics && topic.subtopics.length > 0 && (
+      <div className="flex items-start gap-3 mb-3">
+        <a 
+          href={videoUrl} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="shrink-0"
+        >
+          <img 
+            src={thumbnailUrl} 
+            alt={`Thumbnail at ${timestampFormatted}`}
+            className="w-24 h-auto rounded border border-gray-200"
+          />
+        </a>
+        <div className="pl-0 space-y-4 w-full">
           <div>
-            <h5 className="font-medium mb-2 text-sm">Subtopics</h5>
-            <div className="space-y-3">
-              {topic.subtopics.map((subtopic, subIndex) => {
-                const subTimestamp = timestamp + 20 + (subIndex * 30);
-                const subVideoUrl = `https://www.youtube.com/watch?v=${videoId}&t=${formatTimestampForLink(subTimestamp)}`;
-                
-                return (
-                  <div key={`${index}-${subIndex}`} className="border-l-2 border-gray-200 pl-4">
-                    <div className="flex items-start justify-between">
-                      <h6 className="font-medium mb-1">{subtopic.title}</h6>
-                      <a 
-                        href={subVideoUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center text-xs text-primary hover:underline ml-2"
-                      >
-                        {subTimestamp < 60 ? 
-                          `${subTimestamp}s` : 
-                          `${Math.floor(subTimestamp/60)}:${(subTimestamp%60).toString().padStart(2, '0')}`}
-                        <ExternalLink className="h-3 w-3 ml-1" />
-                      </a>
-                    </div>
+            <h5 className="font-medium mb-2 text-sm">Key Points</h5>
+            <ul className="list-disc pl-5 space-y-1">
+              {topic.keyPoints.map((point, i) => (
+                <li key={i} className="text-muted-foreground">{point}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      {topic.subtopics && topic.subtopics.length > 0 && (
+        <div>
+          <h5 className="font-medium mb-2 text-sm">Subtopics</h5>
+          <div className="space-y-3">
+            {topic.subtopics.map((subtopic, subIndex) => {
+              const subTimestamp = timestamp + 20 + (subIndex * 30);
+              const subVideoUrl = `https://www.youtube.com/watch?v=${videoId}&t=${formatTimestampForLink(subTimestamp)}`;
+              const subThumbnailUrl = generateThumbnailUrl(videoId, subTimestamp);
+              
+              return (
+                <div key={`${index}-${subIndex}`} className="border-l-2 border-gray-200 pl-4">
+                  <div className="flex items-start justify-between">
+                    <h6 className="font-medium mb-1">{subtopic.title}</h6>
+                    <a 
+                      href={subVideoUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center text-xs text-primary hover:underline ml-2"
+                    >
+                      {subTimestamp < 60 ? 
+                        `${subTimestamp}s` : 
+                        `${Math.floor(subTimestamp/60)}:${(subTimestamp%60).toString().padStart(2, '0')}`}
+                      <ExternalLink className="h-3 w-3 ml-1" />
+                    </a>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 mb-2">
+                    <a 
+                      href={subVideoUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="shrink-0"
+                    >
+                      <img 
+                        src={subThumbnailUrl} 
+                        alt={`Thumbnail at ${formatTimestampForLink(subTimestamp)}`}
+                        className="w-20 h-auto rounded border border-gray-200"
+                      />
+                    </a>
                     <ul className="list-disc pl-5 space-y-1">
                       {subtopic.keyPoints.map((point, i) => (
                         <li key={i} className="text-muted-foreground">{point}</li>
                       ))}
                     </ul>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

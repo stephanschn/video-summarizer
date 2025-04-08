@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { ReactFlowProvider } from "@xyflow/react";
 
@@ -72,6 +72,17 @@ const Index = () => {
       </div>
       
       <div className="space-y-8">
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <ShieldCheck className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <h3 className="font-medium text-blue-800">Your API Keys Are Secure</h3>
+            <p className="text-blue-700 text-sm">
+              All API keys are stored <strong>only</strong> in your browser's localStorage and never sent to our servers. 
+              Keys are used directly from your browser to communicate with the AI provider you select.
+            </p>
+          </div>
+        </div>
+        
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">API Configuration</h2>
