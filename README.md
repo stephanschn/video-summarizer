@@ -80,7 +80,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Shadcn UI](https://ui.shadcn.com/) for the beautiful component library
 - [YouTube Transcript API](https://github.com/jdepoix/youtube-transcript-api) for transcript extraction
 
-## Project Links
-
-- **Project URL**: https://lovable.dev/projects/130650e7-05d4-4413-ba42-986fd19f1628
-- **Live Demo**: [YouTube Video Summarizer](https://your-deployed-url.com)
