@@ -76,7 +76,7 @@ const Index = () => {
           <ShieldCheck className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
           <div>
             <p className="text-blue-700 text-sm">
-            API keys are stored <strong>only</strong> in your browser's localStorage only.
+            API keys are stored <strong>only</strong> in your browser's localStorage.
             </p>
           </div>
         </div>
