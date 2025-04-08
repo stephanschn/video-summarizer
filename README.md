@@ -1,73 +1,86 @@
-# Welcome to your Lovable project
 
-## Project info
+# YouTube Video Summarizer
 
-**URL**: https://lovable.dev/projects/130650e7-05d4-4413-ba42-986fd19f1628
+A web application that generates summaries, key topics, and visual mind maps from YouTube video content using AI.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Video Analysis**: Extract meaningful content from YouTube videos using their transcripts
+- **AI-Powered Summaries**: Generate concise summaries with TL;DR, key topics, and subtopics
+- **Visual Mind Maps**: View the video content as an interactive mind map for better understanding
+- **Multiple AI Providers**: Support for both OpenAI and Google Gemini API services
+- **Client-Side Only**: All processing happens in the browser with no server-side storage of API keys
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/130650e7-05d4-4413-ba42-986fd19f1628) and start prompting.
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- Shadcn UI components
+- ReactFlow for interactive mind maps
+- YouTube Transcript API
 
-Changes made via Lovable will be committed automatically to this repo.
+## Privacy & Security
 
-**Use your preferred IDE**
+- API keys are stored **only** in your browser's localStorage
+- No server-side storage or processing of API credentials
+- Keys never leave your device and are not transmitted to any third parties other than the selected AI provider
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Clone the repository
+git clone https://github.com/yourusername/youtube-video-summarizer.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to the project directory
+cd youtube-video-summarizer
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Configuration
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Obtain an API key from either:
+   - [OpenAI](https://platform.openai.com/api-keys)
+   - [Google AI Studio](https://ai.google.dev/) for Gemini
 
-**Use GitHub Codespaces**
+2. Enter your API key in the application's configuration section
+   - The key will be stored only in your browser's localStorage
+   - You can remove the key at any time
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Usage
 
-## What technologies are used for this project?
+1. Configure your preferred AI provider and enter your API key
+2. Paste a YouTube video URL in the input field
+3. Click "Summarize" to process the video
+4. View the generated summary in either text format or as an interactive mind map
+5. Click on timestamps to jump to specific sections of the video
 
-This project is built with:
+## Contributing
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## How can I deploy this project?
+## License
 
-Simply open [Lovable](https://lovable.dev/projects/130650e7-05d4-4413-ba42-986fd19f1628) and click on Share -> Publish.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Can I connect a custom domain to my Lovable project?
+## Acknowledgments
 
-Yes it is!
+- [ReactFlow](https://reactflow.dev/) for the interactive graph visualization
+- [Shadcn UI](https://ui.shadcn.com/) for the beautiful component library
+- [YouTube Transcript API](https://github.com/jdepoix/youtube-transcript-api) for transcript extraction
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Project Links
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **Project URL**: https://lovable.dev/projects/130650e7-05d4-4413-ba42-986fd19f1628
+- **Live Demo**: [YouTube Video Summarizer](https://your-deployed-url.com)

@@ -1,21 +1,37 @@
+
 import { toast } from "sonner";
 import { ApiKeyConfig, SummaryResult, MindMapData, MindMapNode, MindMapEdge, Topic, YouTubeVideoInfo } from "./types";
 import { YoutubeTranscript } from 'youtube-transcript';
 
-// Store API keys in localStorage
+// Store API keys in localStorage (browser-only storage)
 export const saveApiKey = (config: ApiKeyConfig): void => {
-  localStorage.setItem('video-summarizer-api-config', JSON.stringify(config));
-  toast.success(`${config.provider.toUpperCase()} API key saved`);
+  try {
+    localStorage.setItem('video-summarizer-api-config', JSON.stringify(config));
+    toast.success(`${config.provider.toUpperCase()} API key saved (stored only in your browser)`);
+  } catch (error) {
+    console.error('Error saving API key to localStorage:', error);
+    toast.error('Failed to save API key');
+  }
 };
 
 export const getApiKey = (): ApiKeyConfig | null => {
-  const stored = localStorage.getItem('video-summarizer-api-config');
-  return stored ? JSON.parse(stored) : null;
+  try {
+    const stored = localStorage.getItem('video-summarizer-api-config');
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    console.error('Error retrieving API key from localStorage:', error);
+    return null;
+  }
 };
 
 export const deleteApiKey = (): void => {
-  localStorage.removeItem('video-summarizer-api-config');
-  toast.info('API key removed');
+  try {
+    localStorage.removeItem('video-summarizer-api-config');
+    toast.info('API key removed from browser storage');
+  } catch (error) {
+    console.error('Error removing API key from localStorage:', error);
+    toast.error('Failed to remove API key');
+  }
 };
 
 // Test API key connection
