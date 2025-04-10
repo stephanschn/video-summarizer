@@ -7,7 +7,8 @@ import { YoutubeTranscript } from 'youtube-transcript';
 export const saveApiKey = (config: ApiKeyConfig): void => {
   try {
     localStorage.setItem('video-summarizer-api-config', JSON.stringify(config));
-    toast.success(`${config.provider.toUpperCase()} API key saved (stored only in your browser)`);
+    // Removed the part about local storage from the toast message
+    toast.success(`${config.provider.toUpperCase()} API key saved`); 
   } catch (error) {
     console.error('Error saving API key to localStorage:', error);
     toast.error('Failed to save API key');
