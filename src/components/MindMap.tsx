@@ -9,117 +9,90 @@ import {
   Controls, 
   MiniMap, 
   NodeTypes,
-  MarkerType,
   useNodesState,
   useEdgesState,
   Node,
   Edge,
-  getOutgoers,
-  getIncomers,
-  getConnectedEdges
+  MarkerType // Import MarkerType
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Button } from './ui/button'; // Import Button for toggling
-import { PlusIcon, MinusIcon } from 'lucide-react'; // Icons for toggle button
+import { PlusIcon, MinusIcon } from 'lucide-react';
 
 interface MindMapProps {
   summary: SummaryResult | null;
 }
 
-// Helper function to get all descendant nodes and edges
-const getDescendants = (
-  nodeId: string,
-  nodes: Node[],
-  edges: Edge[]
-): { nodes: Node[], edges: Edge[] } => {
-  const outgoers = new Set<string>();
-  const connectingEdges = new Set<string>();
-  const stack = [nodeId];
-
-  while (stack.length > 0) {
-    const currentId = stack.pop()!;
-    const children = getOutgoers(nodes.find(n => n.id === currentId)!, nodes, edges);
-    const childEdges = getConnectedEdges(nodes.filter(n => n.id === currentId), edges).filter(edge => edge.source === currentId);
-
-    children.forEach(child => {
-      if (!outgoers.has(child.id)) {
-        outgoers.add(child.id);
-        stack.push(child.id);
-      }
-    });
-    childEdges.forEach(edge => connectingEdges.add(edge.id));
-  }
-
-  return {
-    nodes: nodes.filter(n => outgoers.has(n.id)),
-    edges: edges.filter(e => connectingEdges.has(e.id)),
-  };
-};
-
-
-// --- Custom Node Components with Toggle ---
+// --- Custom Node Components --- 
 
 interface NodeData {
   label: string;
-  isCollapsed?: boolean;
-  onToggleCollapse?: (nodeId: string) => void;
-  isCollapsible?: boolean; // Indicate if this node type can be collapsed
-  nodeId: string; // Pass node ID for the toggle handler
+  // Add internal state for visual collapse indication if needed
+  isCollapsed?: boolean; 
+  // Callback provided by MindMap component
+  onToggleCollapse?: (nodeId: string, isCurrentlyCollapsed: boolean) => void; 
+  isCollapsible?: boolean;
+  nodeId: string;
 }
 
+// Base styling for nodes
+const nodeBaseStyle = "relative px-3 py-1.5 shadow-md rounded-md text-sm border-2 flex items-center justify-center text-center min-w-[150px] max-w-[220px] min-h-[40px]";
+const buttonStyle = "absolute -right-2.5 -top-2.5 p-0.5 rounded-full focus:outline-none z-10 border";
+
+// Topic Node
 function TopicNode({ data, id }: { data: NodeData; id: string }) {
-  const handleToggle = () => {
+  const handleToggle = (event: React.MouseEvent) => {
+    event.stopPropagation();
     if (data.onToggleCollapse) {
-      data.onToggleCollapse(id);
+      data.onToggleCollapse(id, !!data.isCollapsed);
     }
   };
 
   return (
-    <div className="relative px-4 py-2 shadow-md bg-blue-50 border-2 border-blue-200 text-blue-800 font-medium rounded-md min-w-[120px] max-w-[200px] text-center">
-      {data.label}
+    <div className={`${nodeBaseStyle} bg-blue-50 border-blue-300 text-blue-800 font-medium`}>
+      <span className="truncate">{data.label}</span>
       {data.isCollapsible && (
-         <button
+        <button
           onClick={handleToggle}
-          className="absolute -right-2 -top-2 p-0.5 bg-blue-200 border border-blue-300 rounded-full text-blue-600 hover:bg-blue-300 focus:outline-none"
+          className={`${buttonStyle} bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200`}
           aria-label={data.isCollapsed ? 'Expand' : 'Collapse'}
         >
-          {data.isCollapsed ? <PlusIcon size={12} /> : <MinusIcon size={12} />}
+          {data.isCollapsed ? <PlusIcon size={14} /> : <MinusIcon size={14} />}
         </button>
       )}
     </div>
   );
 }
 
+// Subtopic Node
 function SubtopicNode({ data, id }: { data: NodeData; id: string }) {
-    const handleToggle = () => {
+  const handleToggle = (event: React.MouseEvent) => {
+    event.stopPropagation();
     if (data.onToggleCollapse) {
-      data.onToggleCollapse(id);
+      data.onToggleCollapse(id, !!data.isCollapsed);
     }
   };
+
   return (
-    <div className="relative px-4 py-2 shadow-md bg-green-50 border-2 border-green-200 text-green-800 font-medium rounded-md min-w-[100px] max-w-[180px] text-center">
-      {data.label}
+    <div className={`${nodeBaseStyle} bg-green-50 border-green-300 text-green-800`}>
+      <span className="truncate">{data.label}</span>
        {data.isCollapsible && (
          <button
           onClick={handleToggle}
-          className="absolute -right-2 -top-2 p-0.5 bg-green-200 border border-green-300 rounded-full text-green-600 hover:bg-green-300 focus:outline-none"
+          className={`${buttonStyle} bg-green-100 border-green-300 text-green-600 hover:bg-green-200`}
           aria-label={data.isCollapsed ? 'Expand' : 'Collapse'}
         >
-          {data.isCollapsed ? <PlusIcon size={12} /> : <MinusIcon size={12} />}
+          {data.isCollapsed ? <PlusIcon size={14} /> : <MinusIcon size={14} />}
         </button>
       )}
     </div>
   );
 }
 
+// Keypoint Node (Not collapsible itself)
 function KeypointNode({ data }: { data: NodeData }) {
-  const truncatedLabel = data.label.length > 60 
-    ? `${data.label.substring(0, 60)}...` 
-    : data.label;
-    
   return (
-    <div className="px-3 py-1.5 shadow-md bg-orange-50 border-2 border-orange-200 text-orange-800 text-sm rounded-md min-w-[80px] max-w-[160px] text-center">
-      {truncatedLabel}
+    <div className={`${nodeBaseStyle} bg-orange-50 border-orange-300 text-orange-800`}>
+       <span className="truncate">{data.label}</span>
     </div>
   );
 }
@@ -129,88 +102,114 @@ function KeypointNode({ data }: { data: NodeData }) {
 const MindMap: React.FC<MindMapProps> = ({ summary }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
+
+  // Function to recursively hide/show descendants
+  const toggleDescendants = (nodeId: string, hide: boolean, currentNodes: Node[], currentEdges: Edge[]): { updatedNodes: Node[], updatedEdges: Edge[] } => {
+      const nodesToUpdate = new Set<string>();
+      const edgesToUpdate = new Set<string>();
+      const stack: string[] = [nodeId]; // Start with the node being toggled
+      const directChildrenEdges = currentEdges.filter(edge => edge.source === nodeId);
+
+      // Find direct children to start the traversal
+      directChildrenEdges.forEach(edge => {
+          if (!stack.includes(edge.target)) {
+              stack.push(edge.target);
+          }
+          edgesToUpdate.add(edge.id);
+      });
+      
+      // BFS or DFS to find all descendants
+      let head = 1; // Start processing from the first child
+      while(head < stack.length) {
+          const currentId = stack[head++];
+          nodesToUpdate.add(currentId);
+
+          const childEdges = currentEdges.filter(edge => edge.source === currentId);
+          childEdges.forEach(edge => {
+              if (!stack.includes(edge.target)) {
+                  stack.push(edge.target);
+              }
+              edgesToUpdate.add(edge.id);
+          });
+      }
+
+      // Update nodes
+      const updatedNodes = currentNodes.map(node => {
+          if (nodesToUpdate.has(node.id)) {
+              // Also reset the internal collapsed state for children when expanding parent
+              const newIsCollapsed = hide ? node.data.isCollapsed : false;
+              return { ...node, hidden: hide, data: { ...node.data, isCollapsed: newIsCollapsed } };
+          }
+          return node;
+      });
+
+      // Update edges
+      const updatedEdges = currentEdges.map(edge => {
+          if (edgesToUpdate.has(edge.id)) {
+              return { ...edge, hidden: hide };
+          }
+          return edge;
+      });
+
+      return { updatedNodes, updatedEdges };
+  };
+
+  // Callback for node toggle button
+  const handleToggleCollapse = useCallback((nodeId: string, isCurrentlyCollapsed: boolean) => {
+      setNodes(prevNodes => {
+          // Toggle the clicked node's internal state first
+          const toggledNodes = prevNodes.map(n => 
+              n.id === nodeId ? { ...n, data: { ...n.data, isCollapsed: !isCurrentlyCollapsed } } : n
+          );
+
+          // Then hide/show descendants based on the *new* state
+          const { updatedNodes, updatedEdges } = toggleDescendants(nodeId, !isCurrentlyCollapsed, toggledNodes, edges);
+          setEdges(updatedEdges); // Update edges state
+          return updatedNodes; // Return updated nodes state
+      });
+  }, [edges, setNodes, setEdges]); // Include edges, setNodes, setEdges
 
   // Regenerate nodes/edges when summary changes
   useEffect(() => {
     if (summary) {
       const { nodes: initialNodes, edges: initialEdges } = generateMindMapData(summary);
-      setNodes(initialNodes);
-      setEdges(initialEdges);
-      setCollapsedNodes(new Set()); // Reset collapsed state on new summary
+      
+      // Initialize nodes: not hidden, not collapsed, add collapsible flag and handler
+      const processedNodes = initialNodes.map(n => ({
+        ...n,
+        hidden: false, 
+        data: {
+          ...n.data,
+          isCollapsed: false, // Start expanded
+          isCollapsible: n.type === 'topic' || n.type === 'subtopic',
+          onToggleCollapse: (n.type === 'topic' || n.type === 'subtopic') ? handleToggleCollapse : undefined,
+          nodeId: n.id
+        }
+      }));
+      
+      // Initialize edges: not hidden
+      const processedEdges = initialEdges.map(e => ({ ...e, hidden: false }));
+
+      setNodes(processedNodes);
+      setEdges(processedEdges);
     } else {
       setNodes([]);
       setEdges([]);
-      setCollapsedNodes(new Set());
     }
-  }, [summary, setNodes, setEdges]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary]); // Rerun only when summary changes; handleToggleCollapse uses useCallback for stability
 
-  const handleToggleCollapse = useCallback((nodeId: string) => {
-    setCollapsedNodes(prevCollapsed => {
-      const newCollapsed = new Set(prevCollapsed);
-      const isCurrentlyCollapsed = newCollapsed.has(nodeId);
-      
-      if (isCurrentlyCollapsed) {
-        newCollapsed.delete(nodeId);
-      } else {
-        newCollapsed.add(nodeId);
-      }
-      
-      // Get all descendant nodes and edges
-      const descendants = getDescendants(nodeId, nodes, edges);
-
-      // Update the 'hidden' status of descendant nodes and edges
-      setNodes(prevNodes =>
-        prevNodes.map(n => {
-          if (descendants.nodes.some(dn => dn.id === n.id)) {
-            return { ...n, hidden: !isCurrentlyCollapsed };
-          }
-          return n;
-        })
-      );
-
-      setEdges(prevEdges =>
-        prevEdges.map(e => {
-          // Hide edges connected *from* a descendant or *to* a descendant that isn't the toggled node itself
-           if (descendants.edges.some(de => de.id === e.id)) {
-             return { ...e, hidden: !isCurrentlyCollapsed };
-           }
-           return e;
-        })
-      );
-      
-      return newCollapsed;
-    });
-  }, [nodes, edges, setNodes, setEdges]);
-
-
-  // Add collapse handler and state to node data
-  const nodesWithCollapse = useMemo(() => {
-    return nodes.map(node => {
-      const isCollapsible = node.type === 'topic' || node.type === 'subtopic'; // Define which types are collapsible
-       // Only add toggle handler if it's collapsible
-      const onToggleCollapse = isCollapsible ? handleToggleCollapse : undefined;
-      
-      return {
-        ...node,
-        data: {
-          ...node.data,
-          isCollapsed: collapsedNodes.has(node.id),
-          onToggleCollapse: onToggleCollapse,
-          isCollapsible: isCollapsible,
-          nodeId: node.id
-        },
-      };
-    });
-  }, [nodes, collapsedNodes, handleToggleCollapse]);
   
-  // Memoize node types to include the modified components
+  // Filter out hidden nodes and edges for rendering
+  const visibleNodes = useMemo(() => nodes.filter(n => !n.hidden), [nodes]);
+  const visibleEdges = useMemo(() => edges.filter(e => !e.hidden), [edges]);
+
+  // Memoize node types 
   const nodeTypes = useMemo<NodeTypes>(() => ({
       topic: TopicNode,
       subtopic: SubtopicNode,
       keypoint: KeypointNode
   }), []);
-
 
   if (!summary) return null;
 
@@ -220,47 +219,49 @@ const MindMap: React.FC<MindMapProps> = ({ summary }) => {
         <CardTitle>Mind Map</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="h-[700px] w-full mindmap-container">
+        <div className="h-[700px] w-full mindmap-container border rounded-md"> 
           <ReactFlow
-            nodes={nodesWithCollapse}
-            edges={edges} // Edges array managed by useEdgesState and updated in handleToggleCollapse
+            nodes={visibleNodes} 
+            edges={visibleEdges} 
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             nodeTypes={nodeTypes}
             fitView
-            minZoom={0.1}
-            maxZoom={1.5}
-            defaultViewport={{ x: 0, y: 0, zoom: 0.4 }}
-            fitViewOptions={{ padding: 0.6 }}
+            // Increase padding further if needed
+            fitViewOptions={{ padding: 0.4, duration: 300 }} 
             nodesDraggable={true}
+            nodesConnectable={false} // Usually false for mind maps
             elementsSelectable={true}
-            connectionLineStyle={{ stroke: '#333', strokeWidth: 1.5 }}
-            defaultEdgeOptions={{ 
-              style: { strokeWidth: 2 }, 
-              animated: false,
+            // Basic edge style
+            defaultEdgeOptions={{
+              style: { stroke: '#555', strokeWidth: 1.5 },
+              type: 'smoothstep', // Simple edge type
               markerEnd: {
-                type: MarkerType.Arrow,
-                color: '#333',
-                width: 20,
-                height: 20
-              }
+                type: MarkerType.ArrowClosed,
+                width: 15,
+                height: 15,
+                color: '#555'
+              },
             }}
+            connectionLineStyle={{ stroke: '#555', strokeWidth: 1 }}
           >
-            <Background color="#f0f0f0" gap={16} />
+            <Background color="#eee" gap={20} variant="dots" />
             <Controls />
             <MiniMap 
-              nodeStrokeWidth={3} 
-              zoomable 
-              pannable 
-              nodeColor={(node) => {
-                if (node.hidden) return '#aaa'; // Gray out hidden nodes in minimap
-                switch(node.type) {
-                  case 'topic': return '#dbeafe';
-                  case 'subtopic': return '#dcfce7';
-                  case 'keypoint': return '#ffedd5';
-                  default: return '#e5e5e5';
-                }
-              }}
+                nodeStrokeWidth={2}
+                nodeColor={(n) => {
+                    // Find the original node data for correct color even if hidden
+                    const originalNode = nodes.find(node => node.id === n.id);
+                    if (originalNode?.hidden) return '#ccc'; // Grey out hidden
+                    switch (originalNode?.type) {
+                      case 'topic': return '#dbeafe'; // Blue
+                      case 'subtopic': return '#dcfce7'; // Green
+                      case 'keypoint': return '#ffedd5'; // Orange
+                      default: return '#e5e5e5'; // Default grey
+                    }
+                 }}
+                pannable
+                zoomable
             />
           </ReactFlow>
         </div>
